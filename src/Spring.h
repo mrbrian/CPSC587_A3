@@ -1,6 +1,8 @@
+#pragma once
+
 #include "Vec3f.h"
 #include "Mat4f.h"
-#include "glad\glad.h"
+#include "glad/glad.h"
 #include "Mass.h"
 #include <vector>
 

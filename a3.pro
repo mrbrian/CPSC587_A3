@@ -3,25 +3,24 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = a1
+TARGET = a3
 INCLUDEPATH += . ./include ./middleware/glad/include
 
 CONFIG += c++11 link_pkgconfig
 PKGCONFIG += glfw3 gl
 
 # Input
-HEADERS += src/bspline.h \
-           src/Track.h \
-    src/Track.h
-SOURCES += src/bspline.cpp \
-           src/Camera.cpp \
+HEADERS += src/Mass.h \
+    src/Spring.h
+SOURCES += src/Camera.cpp \
            src/main.cpp \
            src/Mat4f.cpp \
            src/OpenGLMatrixTools.cpp \
            src/Quat4f.cpp \
            src/ShaderTools.cpp \
-           src/Track.cpp \
            src/Vec3f.cpp \
+    src/Mass.cpp \
+    src/Spring.cpp \
            middleware/glad/src/glad.c
 
 
