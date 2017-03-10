@@ -122,6 +122,18 @@ int main(int, char **);
 
 //==================== FUNCTION DEFINITIONS ====================//
 
+void renderGround()
+{
+    // ===== DRAW QUAD ====== //
+    MVP = P * V * quad_M;
+    reloadMVPUniform();
+    reloadColorUniform(1, 0, 0);
+    // Use VAO that holds buffer bindings
+    // and attribute config of buffers
+    glBindVertexArray(quad_vaoID);
+    // Draw Quads, start at vertex 0, draw 4 of them (for a quad)
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
 
 void displayFunc() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -129,8 +141,12 @@ void displayFunc() {
 	// Use our shader
 	glUseProgram(basicProgramID);
 
-	reloadMVPUniform();
-	s.render();
+    reloadMVPUniform();
+
+//    renderGround();
+
+    reloadColorUniform(1, 1, 1);
+    s.render();
 }
 
 void loadQuadGeometryToGPU() {
@@ -158,83 +174,6 @@ void loadQuadGeometryToGPU() {
 	glBindBuffer(GL_ARRAY_BUFFER, quad_normBufferID);
 	glBufferData(GL_ARRAY_BUFFER,
 		sizeof(Vec3f) * 4, // byte size of Vec3f, 4 of them
-		norms.data(),      // pointer (Vec3f*) to contents of verts
-		GL_STATIC_DRAW);   // Usage pattern of GPU buffer
-}
-
-void loadCarGeometryToGPU() {
-    // 6 faces, 2 tris/6 verts each (could be optimized)
-	std::vector<Vec3f> verts;
-	//rear
-	verts.push_back(Vec3f(-1, 1, -1));
-	verts.push_back(Vec3f(1, -1, -1));
-	verts.push_back(Vec3f(-1, -1, -1));
-
-	verts.push_back(Vec3f(-1, 1, -1));
-	verts.push_back(Vec3f(1, 1, -1));
-	verts.push_back(Vec3f(1, -1, -1));
-	//front
-	verts.push_back(Vec3f(1, 1, 1));
-	verts.push_back(Vec3f(-1, 1, 1));
-	verts.push_back(Vec3f(-1, -1, 1));
-
-	verts.push_back(Vec3f(1, 1, 1));
-	verts.push_back(Vec3f(-1, -1, 1));
-	verts.push_back(Vec3f(1, -1, 1));
-	//left
-	verts.push_back(Vec3f(-1, 1, -1));
-	verts.push_back(Vec3f(-1, -1, -1));
-	verts.push_back(Vec3f(-1, -1, 1));
-
-	verts.push_back(Vec3f(-1, 1, -1));
-	verts.push_back(Vec3f(-1, -1, 1));
-	verts.push_back(Vec3f(-1, 1, 1));
-	//right
-	verts.push_back(Vec3f(1, 1, 1));
-	verts.push_back(Vec3f(1, -1, -1));
-	verts.push_back(Vec3f(1, 1, -1));
-
-	verts.push_back(Vec3f(1, 1, 1));
-	verts.push_back(Vec3f(1, -1, 1));
-	verts.push_back(Vec3f(1, -1, -1));
-	//bottom
-	verts.push_back(Vec3f(1, -1, -1));
-	verts.push_back(Vec3f(-1, -1, 1));
-	verts.push_back(Vec3f(-1, -1, -1));
-
-	verts.push_back(Vec3f(1, -1, -1));
-	verts.push_back(Vec3f(1, -1, 1));
-	verts.push_back(Vec3f(-1, -1, 1));
-	//top
-	verts.push_back(Vec3f(-1, 1, 1));
-	verts.push_back(Vec3f(1, 1, -1));
-	verts.push_back(Vec3f(-1, 1, -1));
-
-	verts.push_back(Vec3f(-1, 1, 1));
-	verts.push_back(Vec3f(1, 1, 1));
-	verts.push_back(Vec3f(1, 1, -1));
-
-	std::vector<Vec3f> norms;
-	for (int i = 0; i < 6 * 2 * 3 - 2; i += 3)
-	{
-		Vec3f v1 = verts[i + 1] - verts[i];
-		Vec3f v2 = verts[i + 2] - verts[i];
-		Vec3f n = v1.crossProduct(v2);
-		n.normalize();
-		norms.push_back(n);
-		norms.push_back(n);
-		norms.push_back(n);
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
-	glBufferData(GL_ARRAY_BUFFER,
-		sizeof(Vec3f) * 36, // byte size of Vec3f, 4 of them
-		verts.data(),      // pointer (Vec3f*) to contents of verts
-		GL_STATIC_DRAW);   // Usage pattern of GPU buffer
-
-	glBindBuffer(GL_ARRAY_BUFFER, normBufferID);
-	glBufferData(GL_ARRAY_BUFFER,
-		sizeof(Vec3f) * 36, // byte size of Vec3f, 4 of them
 		norms.data(),      // pointer (Vec3f*) to contents of verts
 		GL_STATIC_DRAW);   // Usage pattern of GPU buffer
 }
@@ -374,7 +313,7 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   glPointSize(50);
 
-  camera = Camera(Vec3f{0, 20, 15}, Vec3f{0, 0, -1}, Vec3f{0, 1, 0});
+  camera = Camera(Vec3f{0, 0, -15}, Vec3f{0, 0, 1}, Vec3f{0, 1, 0});
 
   // SETUP SHADERS, BUFFERS, VAOs
 

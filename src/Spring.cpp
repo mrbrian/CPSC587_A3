@@ -46,33 +46,43 @@ void Spring::update(float dt)
 }
 
 void Spring::render()
-{
-	verts.clear();
+{    
+    verts.clear();
 	verts.push_back(pos);
-	verts.push_back(mass->pos);
+    verts.push_back(mass->pos);
 
-	//reloadMVPUniform();
-	//reloadColorUniform(1, 0, 1);
+    uploadGPU();
+
 	// Use VAO that holds buffer bindings
 	// and attribute config of buffers
 	glBindVertexArray(vaoID);
 	// Draw Quads, start at vertex 0, draw 4 of them (for a quad)
-	glDrawArrays(GL_LINE, 0, 2);
+    glDrawArrays(GL_LINES, 0, 2);
 }
 
 void Spring::load()
 {
-	glGenBuffers(1, &vertBufferID);
 	glGenVertexArrays(1, &vaoID);
+    glBindVertexArray(vaoID);
 
-	std::vector<Vec3f> verts;
-	verts.push_back(pos);
-	verts.push_back(pos);
+    verts.clear();
+    verts.push_back(Vec3f(0,0,0));
+    verts.push_back(Vec3f(0,-5,0));
 
-	glBindVertexArray(vaoID);
+    uploadGPU();
+}
 
-	glEnableVertexAttribArray(0); // match layout # in shader
-	glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
+void Spring::uploadGPU()
+{
+    //upload to gpu
+    glGenBuffers(1, &vertBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
+
+    glBufferData(GL_ARRAY_BUFFER,
+        sizeof(Vec3f) * 2, // byte size of Vec3f, 2 of them
+        verts.data(),      // pointer (Vec3f*) to contents of verts
+        GL_STREAM_DRAW);   // Usage pattern of GPU buffer
+
 	glVertexAttribPointer(0,        // attribute layout # above
 		3,        // # of components (ie XYZ )
 		GL_FLOAT, // type of components
@@ -81,11 +91,6 @@ void Spring::load()
 		(void *)0 // array buffer offset
 	);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
-	glBufferData(GL_ARRAY_BUFFER,
-		sizeof(Vec3f) * 2, // byte size of Vec3f, 4 of them
-		verts.data(),      // pointer (Vec3f*) to contents of verts
-		GL_DYNAMIC_DRAW);   // Usage pattern of GPU buffer
-
+    glEnableVertexAttribArray(0);
 
 }
