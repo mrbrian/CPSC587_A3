@@ -1,30 +1,33 @@
 #include "Vec3f.h"
 #include "Mat4f.h"
 #include "glad\glad.h"
+#include "Mass.h"
+#include <vector>
 
-class Spring
+class Spring : public Mass
 {
 public:
 	Spring();
 	~Spring();
 
+	float getForce();
+
+	Vec3f getX(float dt);
+
+	Vec3f getVel(float dt);
+
+	void update(float dt);
+
 	float k;
 	float x_rest;
-	float x_curr;
-	float vel;
-
 	bool fixed;
 
-	Vec3f pos;
-	Vec3f color;
-	Vec3f velocity;
-
-	Mat4f M;
+	std::vector<Vec3f> verts;
 	GLuint vertBufferID;
 	GLuint vaoID;
+	Mass *mass;
 
 	void render();
 	void load();
-	void update();
 };
 

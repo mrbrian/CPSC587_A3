@@ -34,12 +34,14 @@
 #include "Mat4f.h"
 #include "OpenGLMatrixTools.h"
 #include "Camera.h"
+#include "Spring.h"
 
 //==================== GLOBAL VARIABLES ====================//
 /*	Put here for simplicity. Feel free to restructure into
 *	appropriate classes or abstractions.
 */
 
+Spring s;
 int g_play_speed = 1;
 
 // Drawing Program
@@ -126,6 +128,9 @@ void displayFunc() {
 
 	// Use our shader
 	glUseProgram(basicProgramID);
+
+	reloadMVPUniform();
+	s.render();
 }
 
 void loadQuadGeometryToGPU() {
@@ -381,6 +386,7 @@ void init() {
   reloadProjectionMatrix();
   setupModelViewProjectionTransform();
   reloadMVPUniform();
+  s.load();
 }
 
 int main(int argc, char **argv) {
@@ -436,9 +442,11 @@ int main(int argc, char **argv) {
 	  if (curr_time - last_time >= targ_elapsed)
 	  {
 		  if (g_play) {
+			  s.update(targ_elapsed);
 		  }
-	  }
 
+		  last_time = curr_time;
+	  }
 	  displayFunc();
 	  moveCamera();
 	  glfwSwapBuffers(window);
