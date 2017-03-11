@@ -5,12 +5,13 @@ Spring::Spring() : Mass()
 	mass = new Mass();
 	Mass &m = *mass;
 	m.mass = 1;
-	m.pos = Vec3f(0, -2, 0);
+	m.pos = Vec3f(0, -1.5, 0);
 
 	pos = Vec3f(0, 0, 0);
-	k = 0.1f;
+	k = 0.5f;
 	x_rest = 1;
 	mass = &m;
+	color = Vec3f(1, 1, 1);
 }
 
 Spring::~Spring()
@@ -27,13 +28,13 @@ float Spring::getForce()
 Vec3f Spring::getX(float dt)
 {
 	Vec3f x = mass->pos + getVel(dt) * dt;
-	x = mass->pos * (1 - k*(dt*dt)) + mass->vel * dt;
 	return x;
 }
 
 Vec3f Spring::getVel(float dt)
 {
-	Vec3f v = mass->vel - k * mass->pos * dt;
+	Vec3f rest_pt = (mass->pos - pos).normalized() * x_rest;
+	Vec3f v = mass->vel - k * (mass->pos - rest_pt) * dt;
 	return v;
 }
 
@@ -41,7 +42,7 @@ void Spring::update(float dt)
 {
 	Vec3f x = getX(dt);
 	Vec3f v = getVel(dt);
-	mass->pos += v * dt;
+	mass->pos = x;
 	mass->vel = v;
 }
 
@@ -51,13 +52,17 @@ void Spring::render()
 	verts.push_back(pos);
     verts.push_back(mass->pos);
 
-    uploadGPU();
-
 	// Use VAO that holds buffer bindings
 	// and attribute config of buffers
 	glBindVertexArray(vaoID);
+	updateGPU();
+
 	// Draw Quads, start at vertex 0, draw 4 of them (for a quad)
     glDrawArrays(GL_LINES, 0, 2);
+	glBindVertexArray(0);
+
+	if (mass)
+		mass->render();
 }
 
 void Spring::load()
@@ -69,13 +74,15 @@ void Spring::load()
     verts.push_back(Vec3f(0,0,0));
     verts.push_back(Vec3f(0,-5,0));
 
-    uploadGPU();
+    glGenBuffers(1, &vertBufferID);
+    updateGPU();
+
+	mass->load();
 }
 
-void Spring::uploadGPU()
+void Spring::updateGPU()
 {
     //upload to gpu
-    glGenBuffers(1, &vertBufferID);
     glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
 
     glBufferData(GL_ARRAY_BUFFER,

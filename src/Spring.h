@@ -15,9 +15,7 @@ public:
 	float getForce();
 
 	Vec3f getX(float dt);
-
 	Vec3f getVel(float dt);
-
 	void update(float dt);
 
 	float k;
@@ -25,11 +23,9 @@ public:
 	bool fixed;
 
 	std::vector<Vec3f> verts;
-	GLuint vertBufferID;
-	GLuint vaoID;
 	Mass *mass;
 
-    void uploadGPU();
+    void updateGPU();
 	void render();
 	void load();
 };
