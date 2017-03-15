@@ -9,7 +9,7 @@ class Mass
 public:
 	Mass();
 	
-	Vec3f pos;   // can reference another mass (spring)
+	Vec3f *pos;   // can reference another mass (spring)
 	Vec3f vel;
 	float mass;
 
@@ -23,5 +23,4 @@ public:
 	GLuint vertBufferID;
 	GLuint vaoID;;
 };
-
 

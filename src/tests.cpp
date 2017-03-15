@@ -6,10 +6,10 @@ void test_create()
 {
 	Mass m = Mass();
 	m.mass = 1;
-	m.pos = Vec3f(0, -0.5f, 0);
+	m.pos = new Vec3f(0, -2, 0);
 	m.vel = Vec3f(0, 0, 0);
 	Spring s = Spring();
-	s.pos = Vec3f(0, 0, 0);
+	s.pos = new Vec3f(0, -1, 0);
 	s.k = 0.1f;
 	s.x_rest = 1;
 	s.mass = &m;
@@ -19,7 +19,8 @@ void test_create()
 	{
 		Vec3f x = s.getX(dt);
 		Vec3f v = s.getVel(dt);
-		s.mass->pos = x;
+		Vec3f &mp = *s.mass->pos;
+		mp = x;
 		s.mass->vel = v;
 
 		printf("%f %f %f\n", x.x(), x.y(), x.z());
@@ -32,10 +33,10 @@ void test_create2()
 {
 	Mass m = Mass();
 	m.mass = 1;
-	m.pos = Vec3f(0, -0.5f, 0);
+	m.pos = new Vec3f(0, -0.5f, 0);
 	m.vel = Vec3f(0, 0, 0);
 	Spring s = Spring();
-	s.pos = Vec3f(0, 0, 0);
+	s.pos = new Vec3f(0, 0, 0);
 	s.k = 0.1f;
 	s.x_rest = 1;
 	s.mass = &m;
@@ -51,7 +52,8 @@ void test_create2()
 	{
 		Vec3f x = s.getX(dt);
 		Vec3f v = s.getVel(dt);
-		s.mass->pos = x;
+		Vec3f &mp = *s.mass->pos;
+		mp = x;
 		s.mass->vel = v;
 
 		printf("%f %f %f\n", x.x(), x.y(), x.z());
@@ -62,7 +64,7 @@ void test_create2()
 
 int main(int argc, char** argv)
 {
-	test_create2();
+	//test_create2();
 	test_create();
 	return 0;
 }

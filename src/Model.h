@@ -4,7 +4,8 @@
 class Model
 {
 public:
-	std::vector<Mass*> objects;
+	std::vector<Mass*> springs;
+	std::vector<Mass*> masses;
 
 	virtual void init();
 	virtual void render();
@@ -12,6 +13,11 @@ public:
 };
 
 class Model1 : public Model
+{
+	void init() override;
+};
+
+class Model2 : public Model
 {
 	void init() override;
 };

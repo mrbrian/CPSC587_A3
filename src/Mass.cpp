@@ -29,7 +29,8 @@ void Mass::load()
 
 void Mass::update(float dt)
 {
-	pos += vel * dt;
+	Vec3f &p = *pos;
+	p += vel * dt;
 }
 
 void Mass::updateGPU()
@@ -39,7 +40,7 @@ void Mass::updateGPU()
 
 	glBufferData(GL_ARRAY_BUFFER,
 		sizeof(Vec3f), // byte size of Vec3f, 2 of them
-		&pos,      // pointer (Vec3f*) to contents of verts
+		pos,      // pointer (Vec3f*) to contents of verts
 		GL_STREAM_DRAW);   // Usage pattern of GPU buffer
 
 	glVertexAttribPointer(0,        // attribute layout # above

@@ -313,7 +313,7 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   glPointSize(50);
 
-  camera = Camera(Vec3f{0, 0, -15}, Vec3f{0, 0, 1}, Vec3f{0, 1, 0});
+  camera = Camera(Vec3f{0, 0, -5}, Vec3f{0, 0, 1}, Vec3f{0, 1, 0});
 
   // SETUP SHADERS, BUFFERS, VAOs
 

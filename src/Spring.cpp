@@ -1,14 +1,16 @@
 #include "Spring.h"
 
+extern void reloadColorUniform(float r, float g, float b);
+
 Spring::Spring() : Mass()
 {
 	mass = new Mass();
 	Mass &m = *mass;
 	m.mass = 1;
-	m.pos = Vec3f(0, -1.5, 0);
+	m.pos = new Vec3f(0, -1.5, 0);
 
-	pos = Vec3f(0, 0, 0);
-	k = 0.5f;
+	pos = new Vec3f(0, 0, 0);
+	k = 1;
 	x_rest = 1;
 	mass = &m;
 	color = Vec3f(1, 1, 1);
@@ -20,21 +22,21 @@ Spring::~Spring()
 
 float Spring::getForce()
 {
-	float dist = (mass->pos - pos).length();
+	float dist = (*mass->pos - *pos).length();
 	float F = k * (x_rest - dist);
 	return F;
 }
 
 Vec3f Spring::getX(float dt)
 {
-	Vec3f x = mass->pos + getVel(dt) * dt;
+	Vec3f x = *mass->pos + getVel(dt) * dt;
 	return x;
 }
 
 Vec3f Spring::getVel(float dt)
 {
-	Vec3f rest_pt = (mass->pos - pos).normalized() * x_rest;
-	Vec3f v = mass->vel - k * (mass->pos - rest_pt) * dt;
+	Vec3f rest_pt = (*mass->pos - *pos).normalized() * x_rest + *pos;
+	Vec3f v = mass->vel - k * (*mass->pos - rest_pt) * dt;
 	return v;
 }
 
@@ -42,15 +44,18 @@ void Spring::update(float dt)
 {
 	Vec3f x = getX(dt);
 	Vec3f v = getVel(dt);
-	mass->pos = x;
+	Vec3f &mass_pos = *mass->pos;
+	mass_pos = x;
 	mass->vel = v;
 }
 
 void Spring::render()
 {    
     verts.clear();
-	verts.push_back(pos);
-    verts.push_back(mass->pos);
+	verts.push_back(*pos);
+    verts.push_back(*mass->pos);
+
+	reloadColorUniform(color.x(), color.y(), color.z());
 
 	// Use VAO that holds buffer bindings
 	// and attribute config of buffers
