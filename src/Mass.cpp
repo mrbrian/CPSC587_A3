@@ -3,6 +3,8 @@
 
 Mass::Mass()
 {
+	fixed = false;
+	damp = 0;// 0.125f;
 }
 
 void Mass::render()
@@ -27,10 +29,17 @@ void Mass::load()
 	updateGPU();
 }
 
-void Mass::update(float dt)
+void Mass::resolveForce(float dt)
 {
-	Vec3f &p = *pos;
-	p += vel * dt;
+	Vec3f new_vel = vel;
+	new_vel += force / mass * dt;	// spring force
+	new_vel += gravity * dt;		// gravity 
+	
+	vel = new_vel;
+
+	if (!fixed)
+		pos += vel * dt;
+	force = Vec3f(0, 0, 0);
 }
 
 void Mass::updateGPU()
@@ -40,7 +49,7 @@ void Mass::updateGPU()
 
 	glBufferData(GL_ARRAY_BUFFER,
 		sizeof(Vec3f), // byte size of Vec3f, 2 of them
-		pos,      // pointer (Vec3f*) to contents of verts
+		&pos,      // pointer (Vec3f*) to contents of verts
 		GL_STREAM_DRAW);   // Usage pattern of GPU buffer
 
 	glVertexAttribPointer(0,        // attribute layout # above

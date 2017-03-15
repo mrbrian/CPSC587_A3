@@ -4,7 +4,7 @@
 class Model
 {
 public:
-	std::vector<Mass*> springs;
+	std::vector<Spring*> springs;
 	std::vector<Mass*> masses;
 
 	virtual void init();

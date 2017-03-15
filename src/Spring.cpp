@@ -1,61 +1,82 @@
 #include "Spring.h"
 
-extern void reloadColorUniform(float r, float g, float b);
+//extern void reloadColorUniform(float r, float g, float b);
 
-Spring::Spring() : Mass()
+Spring::Spring()
 {
-	mass = new Mass();
-	Mass &m = *mass;
-	m.mass = 1;
-	m.pos = new Vec3f(0, -1.5, 0);
+	mass_2 = new Mass();
+	mass_2->mass = 1;
+	mass_2->pos = Vec3f(0, -1.5, 0);
 
-	pos = new Vec3f(0, 0, 0);
+	mass_1 = new Mass();
+	mass_1->pos = Vec3f(0, 0, 0);
+	mass_1->mass = 1;
 	k = 1;
+	damp = 0.25f;
 	x_rest = 1;
-	mass = &m;
-	color = Vec3f(1, 1, 1);
 }
 
 Spring::~Spring()
 {
+	k = 1;
 }
 
-float Spring::getForce()
+Vec3f Spring::getForce()
 {
-	float dist = (*mass->pos - *pos).length();
-	float F = k * (x_rest - dist);
+	float dist = (mass_2->pos - mass_1->pos).length();
+	Vec3f F = -k * (dist - x_rest) * (mass_2->pos - mass_1->pos) / dist;
 	return F;
 }
 
 Vec3f Spring::getX(float dt)
 {
-	Vec3f x = *mass->pos + getVel(dt) * dt;
+	Vec3f x = mass_2->pos + getVel(dt) * dt;
 	return x;
 }
 
 Vec3f Spring::getVel(float dt)
 {
-	Vec3f rest_pt = (*mass->pos - *pos).normalized() * x_rest + *pos;
-	Vec3f v = mass->vel - k * (*mass->pos - rest_pt) * dt;
+	Vec3f rest_pt = (mass_2->pos - mass_1->pos).normalized() * x_rest + mass_1->pos;
+	Vec3f v = mass_2->vel - k * (mass_2->pos - rest_pt) * dt;
 	return v;
+}
+
+void Spring::applyForce(float dt)
+{
+	mass_1->force += -getForce() - damp * mass_1->vel;
+	mass_2->force += getForce() - damp * mass_2->vel;
 }
 
 void Spring::update(float dt)
 {
+	if (!mass_1->fixed)
+	{
+		mass_1->vel -= getForce() / mass_1->mass * dt;
+		mass_1->pos += mass_1->vel * dt;
+	}
+
+	if (!mass_2->fixed)
+	{
+		Vec3f &pos2 = mass_2->pos;
+		mass_2->vel += getForce() / mass_2->mass * dt;
+		mass_2->pos += mass_2->vel * dt;
+	}
+
+	/*
 	Vec3f x = getX(dt);
 	Vec3f v = getVel(dt);
-	Vec3f &mass_pos = *mass->pos;
+	Vec3f &mass_pos = *mass_2->pos;
 	mass_pos = x;
-	mass->vel = v;
+	mass_2->vel = v;*/
 }
 
 void Spring::render()
 {    
     verts.clear();
-	verts.push_back(*pos);
-    verts.push_back(*mass->pos);
+	verts.push_back(mass_1->pos);
+    verts.push_back(mass_2->pos);
 
-	reloadColorUniform(color.x(), color.y(), color.z());
+	//reloadColorUniform(color.x(), color.y(), color.z());
 
 	// Use VAO that holds buffer bindings
 	// and attribute config of buffers
@@ -66,8 +87,11 @@ void Spring::render()
     glDrawArrays(GL_LINES, 0, 2);
 	glBindVertexArray(0);
 
-	if (mass)
-		mass->render();
+	if (mass_1)
+		mass_1->render();
+
+	if (mass_2)
+		mass_2->render();
 }
 
 void Spring::load()
@@ -82,7 +106,8 @@ void Spring::load()
     glGenBuffers(1, &vertBufferID);
     updateGPU();
 
-	mass->load();
+	mass_1->load();
+	mass_2->load();
 }
 
 void Spring::updateGPU()

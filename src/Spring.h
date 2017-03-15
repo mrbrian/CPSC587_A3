@@ -6,24 +6,29 @@
 #include "Mass.h"
 #include <vector>
 
-class Spring : public Mass
+class Spring 
 {
 public:
 	Spring();
 	~Spring();
 
-	float getForce();
-
-	Vec3f getX(float dt);
-	Vec3f getVel(float dt);
-	void update(float dt);
-
 	float k;
 	float x_rest;
-	bool fixed;
+	float damp;
 
 	std::vector<Vec3f> verts;
-	Mass *mass;
+	Mass *mass_1;
+	Mass *mass_2;
+	Vec3f color;
+
+	GLuint vertBufferID;
+	GLuint vaoID;;
+
+	Vec3f getForce();
+	Vec3f getX(float dt);
+	Vec3f getVel(float dt);
+	void applyForce(float dt);
+	void update(float dt);
 
     void updateGPU();
 	void render();

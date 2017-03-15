@@ -325,7 +325,7 @@ void init() {
   reloadProjectionMatrix();
   setupModelViewProjectionTransform();
   reloadMVPUniform();
-  m = new Model1();
+  m = new Model2();
   m->init();
 }
 
@@ -382,7 +382,7 @@ int main(int argc, char **argv) {
 	  if (curr_time - last_time >= targ_elapsed)
 	  {
 		  if (g_play) {
-			  m->update(targ_elapsed);
+			  m->update(targ_elapsed * g_play_speed);
 		  }
 
 		  last_time = curr_time;
