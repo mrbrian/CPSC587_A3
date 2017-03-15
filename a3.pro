@@ -21,7 +21,8 @@ SOURCES += src/Camera.cpp \
            src/Vec3f.cpp \
     src/Mass.cpp \
     src/Spring.cpp \
-           middleware/glad/src/glad.c
+           middleware/glad/src/glad.c \
+    src/Model.cpp
 
 
 LIBS += -L/usr/lib/ -ldl-2.23

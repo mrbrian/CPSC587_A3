@@ -68,7 +68,7 @@ Mat4f P;
 Mat4f MVP;
 
 // Camera and veiwing Stuff
-Camera camera;
+Camera camera;1
 int g_moveUpDown = 0;
 int g_moveLeftRight = 0;
 int g_moveBackForward = 0;
