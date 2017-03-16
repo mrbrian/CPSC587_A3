@@ -313,7 +313,7 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   glPointSize(50);
 
-  camera = Camera(Vec3f{0, 0, -5}, Vec3f{0, 0, 1}, Vec3f{0, 1, 0});
+  camera = Camera(Vec3f{0, 0, 5}, Vec3f{0, 0, -1}, Vec3f{0, 1, 0});
 
   // SETUP SHADERS, BUFFERS, VAOs
 
@@ -335,17 +335,17 @@ void initModel()
 
     switch (g_model)
     {
-    case 0:
+    default:		
         m = new Model1();
         break;
     case 1:
         m = new Model2();
         break;
     case 2:
-       // m = new Model3();
-        break;
-    case 3:
-       // m = new Model4();
+		m = new Model3();
+		break;
+	case 3:
+        m = new Model4();
         break;
     }
     m->init();
@@ -476,11 +476,15 @@ void windowKeyFunc(GLFWwindow *window, int key, int scancode, int action,
     glfwSetWindowShouldClose(window, GL_TRUE);
     break;
   case GLFW_KEY_1:
-      g_model++;
-      initModel();
-      break;
+	g_model--;
+	if (g_model < 0)
+		g_model = 0;
+	initModel();
+	break;
   case GLFW_KEY_2:
-      g_model--;
+      g_model++;
+	  if (g_model > 3)
+		  g_model = 3;
       initModel();
       break;
   case GLFW_KEY_EQUAL:

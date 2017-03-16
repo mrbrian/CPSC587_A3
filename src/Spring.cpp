@@ -1,6 +1,6 @@
 #include "Spring.h"
 
-//extern void reloadColorUniform(float r, float g, float b);
+extern void reloadColorUniform(float r, float g, float b);
 
 Spring::Spring()
 {
@@ -43,8 +43,10 @@ Vec3f Spring::getVel(float dt)
 
 void Spring::applyForce(float dt)
 {
-	mass_1->force += -getForce() - damp * mass_1->vel;
-	mass_2->force += getForce() - damp * mass_2->vel;
+	Vec3f a_b = (mass_2->pos - mass_1->pos).normalized();
+
+	mass_1->force += -getForce() - damp * mass_1->vel.dotProduct(a_b) * a_b;
+	mass_2->force += getForce() - damp * mass_2->vel.dotProduct(a_b) * a_b;
 }
 
 void Spring::update(float dt)
@@ -61,13 +63,6 @@ void Spring::update(float dt)
 		mass_2->vel += getForce() / mass_2->mass * dt;
 		mass_2->pos += mass_2->vel * dt;
 	}
-
-	/*
-	Vec3f x = getX(dt);
-	Vec3f v = getVel(dt);
-	Vec3f &mass_pos = *mass_2->pos;
-	mass_pos = x;
-	mass_2->vel = v;*/
 }
 
 void Spring::render()
@@ -76,7 +71,7 @@ void Spring::render()
 	verts.push_back(mass_1->pos);
     verts.push_back(mass_2->pos);
 
-	//reloadColorUniform(color.x(), color.y(), color.z());
+	reloadColorUniform(color.x(), color.y(), color.z());
 
 	// Use VAO that holds buffer bindings
 	// and attribute config of buffers

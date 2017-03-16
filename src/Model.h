@@ -21,3 +21,13 @@ class Model2 : public Model
 {
 	void init() override;
 };
+
+class Model3 : public Model
+{
+	void init() override;
+};
+
+class Model4 : public Model
+{
+	void init() override;
+};
