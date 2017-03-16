@@ -31,3 +31,9 @@ class Model4 : public Model
 {
 	void init() override;
 };
+
+class Model5 : public Model
+{
+	void init() override;
+	void update(float dt) override;
+};

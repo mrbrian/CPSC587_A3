@@ -345,8 +345,11 @@ void initModel()
 		m = new Model3();
 		break;
 	case 3:
-        m = new Model4();
-        break;
+		m = new Model4();
+		break;
+	case 4:
+		m = new Model5();
+		break;
     }
     m->init();
 }
@@ -476,16 +479,22 @@ void windowKeyFunc(GLFWwindow *window, int key, int scancode, int action,
     glfwSetWindowShouldClose(window, GL_TRUE);
     break;
   case GLFW_KEY_1:
-	g_model--;
-	if (g_model < 0)
-		g_model = 0;
-	initModel();
+	  if (set)
+	  {
+		  g_model--;
+		  if (g_model < 0)
+			  g_model = 0;
+		  initModel();
+	  }
 	break;
   case GLFW_KEY_2:
-      g_model++;
-	  if (g_model > 3)
-		  g_model = 3;
-      initModel();
+	  if (set)
+	  {
+		  g_model++;
+		  if (g_model > 4)
+			  g_model = 4;
+		  initModel();
+	  }
       break;
   case GLFW_KEY_EQUAL:
       g_play_speed++;
