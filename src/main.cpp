@@ -309,11 +309,26 @@ void deleteIDs() {
   glDeleteBuffers(1, &quad_normBufferID);
 }
 
+void initCamera() {
+    camera = Camera(Vec3f{0, 0, 5}, Vec3f{0, 0, -5}, Vec3f{0, 1, 0});
+
+    g_moveUpDown = 0;
+    g_moveLeftRight = 0;
+    g_moveBackForward = 0;
+    g_rotateLeftRight = 0;
+    g_rotateUpDown = 0;
+    g_rotateRoll = 0;
+
+    reloadViewMatrix();
+    setupModelViewProjectionTransform();
+    reloadMVPUniform();
+}
+
 void init() {
   glEnable(GL_DEPTH_TEST);
   glPointSize(50);
 
-  camera = Camera(Vec3f{0, 0, 5}, Vec3f{0, 0, -1}, Vec3f{0, 1, 0});
+  initCamera();
 
   // SETUP SHADERS, BUFFERS, VAOs
 
@@ -509,6 +524,9 @@ void windowKeyFunc(GLFWwindow *window, int key, int scancode, int action,
   case GLFW_KEY_S:
 	  g_moveBackForward = set ? -1 : 0;
 	  break;
+  case GLFW_KEY_C:
+      initCamera();
+      break;
   case GLFW_KEY_A:
     g_moveLeftRight = set ? 1 : 0;
     break;

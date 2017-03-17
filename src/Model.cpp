@@ -104,7 +104,7 @@ void Model3::init()
 	int d = 4;
 	float scale = 0.3f;
 	float max_dist_squared = 3 * scale * scale;
-	Vec3f start = Vec3f(0, 0, 0);
+    Vec3f start = Vec3f(-w, -h, -d) * 0.5f * scale;
 	Mass *prev_mass = 0;
 
 	for (int x = 0; x < w; x++)
@@ -135,8 +135,8 @@ void Model3::init()
 				continue;
 
 			Spring *s = new Spring();
-			s->k = 10;
-			s->damp = 0.25f;
+            s->k = 40;
+            s->damp = 0.125f;
 			s->x_rest = sqrt(dist_sq);
 			s->mass_1 = a;
 			s->mass_2 = b;
@@ -150,7 +150,7 @@ void Model3::init()
 
 void Model3::update(float dt)
 {
-	float floor_y = -0.5f;
+    float floor_y = -1.0f;
 
 	for (int i = 0; i < springs.size(); i++)
 		springs[i]->applyForce(dt);
@@ -170,11 +170,11 @@ void Model3::update(float dt)
 
 void Model4::init()
 {
-	int w = 5;
-	int h = 10;
-	float scale = 0.3f;
+    int w = 10;
+    int h = 10;
+    float scale = 0.3f;
 	float max_dist_squared = 2 * scale * scale;
-	Vec3f start = Vec3f(0, 0, 0);
+    Vec3f start = Vec3f(0, 2, 0);
 	Mass *mass_heap = new Mass[w * h];
 	Mass *prev_mass = 0;
 
@@ -182,15 +182,15 @@ void Model4::init()
 		for (int x = 0; x < w; x++)
 		{
 			Mass *m = &mass_heap[y * w + x];
-			m->mass = 0.1f;
-			m->pos = start + Vec3f(x, -y, 0) * scale;
+            m->mass = 0.05f;
+            m->pos = start + Vec3f(x, -y, RAND_1() / 100) * scale;
 			m->vel = Vec3f(0, 0, 0);
 
 			masses.push_back(m);
 		}
 
-	masses[0]->fixed = true;
-	masses[w - 1]->fixed = true;
+    masses[0]->fixed = true;
+    //uymasses[w - 1]->fixed = true;
 
 	for (int i = 0; i < masses.size(); i++)
 	{
@@ -208,8 +208,8 @@ void Model4::init()
 				continue;
 
 			Spring *s = new Spring();
-			s->k = 10;
-			s->damp = 0.5f;
+            s->k = 80;
+            s->damp = 0.05f;
 			s->x_rest = sqrt(dist_sq);
 			s->mass_1 = a;
 			s->mass_2 = b;
