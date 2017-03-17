@@ -25,6 +25,7 @@ class Model2 : public Model
 class Model3 : public Model
 {
 	void init() override;
+	void update(float dt) override;
 };
 
 class Model4 : public Model

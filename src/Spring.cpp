@@ -67,7 +67,7 @@ void Spring::update(float dt)
 
 void Spring::render()
 {    
-    verts.clear();
+	verts.clear();
 	verts.push_back(mass_1->pos);
     verts.push_back(mass_2->pos);
 
@@ -81,7 +81,7 @@ void Spring::render()
 	// Draw Quads, start at vertex 0, draw 4 of them (for a quad)
     glDrawArrays(GL_LINES, 0, 2);
 	glBindVertexArray(0);
-
+	return;
 	if (mass_1)
 		mass_1->render();
 

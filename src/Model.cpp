@@ -25,20 +25,23 @@ void Model::update(float dt)
 		springs[i]->applyForce(dt);
 
 	for (int i = 0; i < masses.size(); i++)
+	{
+		masses[i]->addGravity(dt);
 		masses[i]->resolveForce(dt);
+	}
 }
 
 void Model1::init()
 {
 	Mass *m_1 = new Mass();
 	m_1->mass = 1;
-	m_1->pos = Vec3f(0, -1.0f, 0);
+	m_1->pos = Vec3f(0, 1.0f, 0);
 	m_1->vel = Vec3f(0, 0, 0);
 	m_1->fixed = true;
 
 	Mass *m_2 = new Mass();
 	m_2->mass = 1;
-	m_2->pos = Vec3f(0, -2.5f, 0);
+	m_2->pos = Vec3f(0, -0.5f, 0);
 	m_2->vel = Vec3f(0, 0, 0);
 
 	Spring *s = new Spring();
@@ -59,8 +62,9 @@ void Model1::init()
 void Model2::init()
 {
 	int num_chains = 10;
-	Vec3f start = Vec3f(0, 0, 0);
-	Vec3f offset = Vec3f(1, -1, 0).normalized();
+	Vec3f start = Vec3f(0, 2, 0);
+	float scale = 0.3f;
+	Vec3f offset = Vec3f(1, -1, 0).normalized() * scale;
 	Mass *prev_mass = 0;
 
 	for (int i = 0; i < num_chains + 1; i++)
@@ -78,7 +82,7 @@ void Model2::init()
 			Spring *s = new Spring();
 			s->k = 100;
 			s->damp = 0.5f;
-			s->x_rest = 1;
+			s->x_rest = scale;
 			s->mass_1 = prev_mass;
 			s->mass_2 = m;
 			s->color = Vec3f(1, 0, 0);
@@ -99,6 +103,7 @@ void Model3::init()
 	int h = 4;
 	int d = 4;
 	float scale = 0.3f;
+	float max_dist_squared = 3 * scale * scale;
 	Vec3f start = Vec3f(0, 0, 0);
 	Mass *prev_mass = 0;
 
@@ -107,7 +112,7 @@ void Model3::init()
 			for (int z = 0; z < d; z++)
 			{
 				Mass *m = new Mass();
-				m->mass = 1;
+				m->mass = 0.25f;
 				m->pos = start + Vec3f(x, y, z) * scale;
 				m->vel = Vec3f(0, 0, 0);
 
@@ -124,15 +129,15 @@ void Model3::init()
 				continue; 
 
 			Mass *b = masses[j];			
-			float dist = (b->pos - a->pos).length();
+			float dist_sq = (b->pos - a->pos).lengthSquared();
 
-			if (dist > scale)
+			if (dist_sq > max_dist_squared)
 				continue;
 
 			Spring *s = new Spring();
 			s->k = 10;
-			s->damp = 0.5f;
-			s->x_rest = scale;
+			s->damp = 0.25f;
+			s->x_rest = sqrt(dist_sq);
 			s->mass_1 = a;
 			s->mass_2 = b;
 			s->color = Vec3f(1, 0, 0);
@@ -141,7 +146,26 @@ void Model3::init()
 	}
 	for (int i = 0; i < springs.size(); i++)
 		springs[i]->load();
+}
 
+void Model3::update(float dt)
+{
+	float floor_y = -0.5f;
+
+	for (int i = 0; i < springs.size(); i++)
+		springs[i]->applyForce(dt);
+
+	for (int i = 0; i < masses.size(); i++)
+	{
+		masses[i]->addGravity(dt);
+		masses[i]->resolveForce(dt);
+		Vec3f pos = masses[i]->pos;
+		if (pos.y() < floor_y) 
+		{
+			pos.set(pos.x(), floor_y, pos.z());
+			masses[i]->pos = pos;
+		}
+	}
 }
 
 void Model4::init()
@@ -178,15 +202,15 @@ void Model4::init()
 				continue;
 
 			Mass *b = masses[j];
-			float dist = (b->pos - a->pos).lengthSquared();
+			float dist_sq = (b->pos - a->pos).lengthSquared();
 
-			if (dist > max_dist_squared + scale / 100)
+			if (dist_sq > max_dist_squared + scale / 100)
 				continue;
 
 			Spring *s = new Spring();
 			s->k = 10;
 			s->damp = 0.5f;
-			s->x_rest = scale;
+			s->x_rest = sqrt(dist_sq);
 			s->mass_1 = a;
 			s->mass_2 = b;
 			s->color = Vec3f(1, 0, 0);

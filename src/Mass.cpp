@@ -4,7 +4,6 @@
 Mass::Mass()
 {
 	fixed = false;
-	damp = 0;// 0.125f;
 }
 
 void Mass::render()
@@ -33,13 +32,17 @@ void Mass::resolveForce(float dt)
 {
 	Vec3f new_vel = vel;
 	new_vel += force / mass * dt;	// spring force
-	new_vel += gravity * dt;		// gravity 
-	
+
 	vel = new_vel;
 
 	if (!fixed)
 		pos += vel * dt;
 	force = Vec3f(0, 0, 0);
+}
+
+void Mass::addGravity(float dt)
+{
+	force += gravity * mass;		
 }
 
 void Mass::updateGPU()
