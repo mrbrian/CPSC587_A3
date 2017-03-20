@@ -1,8 +1,8 @@
-CPSC587 - Assignment 1
+CPSC587 - Assignment 3
 
 NAME: Brian Yee
 UCID Number: 00993104
-Tutorial Section: T01
+Tutorial Section: T03
 
 === 1. EXECUTION: ===
 
@@ -12,23 +12,27 @@ To compile the program, on the terminal enter the following commands:
 
 To run the program, on the terminal enter the following command:
 
-	./assign1
+	./assign3
 
 === 2. PROGRAM USE: ===
 
 	+  - Increase Speed 
 	-  - Decrease Speed
-	F1 - First person view
+	1  - Previous Scene
+	2  - Next Scene
 
 	W, A, S, D - Translate camera position
 	Left Click & Drag - Rotate camera
+	C - Reset camera orientation
 	
 	
 === 3. ALGORITHMS and DESIGN DECISIONS: ===
 
-I am using my own B-Spline implementation from a CPSC589 assignment.  The Main program is based off of the supplied CPSC587 animation sample code.
+Integration by semi-implicit Euler
+Timestep is 1/60 sec
 
-Bonus 1) A train of cars is rendered.
-Bonus 2) First person view is implemented (use F1 key)
-Bonus 3) For extra realism I added diffuse lighting to the shader and render shadows on the ground.
+Bonus:
+
+
+convert to polys
 

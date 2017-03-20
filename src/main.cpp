@@ -506,8 +506,8 @@ void windowKeyFunc(GLFWwindow *window, int key, int scancode, int action,
 	  if (set)
 	  {
 		  g_model++;
-		  if (g_model > 4)
-			  g_model = 4;
+          if (g_model > 5)
+              g_model = 5;
 		  initModel();
 	  }
       break;

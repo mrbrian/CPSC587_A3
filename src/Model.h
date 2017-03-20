@@ -12,22 +12,45 @@ public:
 	virtual void update(float dt);
 };
 
+// single spring
 class Model1 : public Model
 {
 	void init() override;
 };
 
+// series of springs
 class Model2 : public Model
 {
 	void init() override;
 };
 
-class Model3 : public Model
+struct Face
 {
-	void init() override;
-	void update(float dt) override;
+    int v_indices[3];
+
+    Face(int i, int j, int k)
+    {
+        v_indices[0] = i;
+        v_indices[1] = j;
+        v_indices[2] = k;
+    }
 };
 
+// jello cube
+class Model3 : public Model
+{    
+    GLuint vertBufferID;
+    GLuint vaoID;;
+
+    std::vector<Face> faces;
+    std::vector<Vec3f> verts;
+    void init() override;
+    void update(float dt) override;
+    void updateGPU();
+    void render();
+};
+
+// hanging cloth
 class Model4 : public Model
 {
 	void init() override;
@@ -35,6 +58,13 @@ class Model4 : public Model
 
 class Model5 : public Model
 {
-	void init() override;
-	void update(float dt) override;
+        void init() override;
+        void update(float dt) override;
+};
+
+// cloth + table
+class Model6 : public Model
+{
+        void init() override;
+        void update(float dt) override;
 };
