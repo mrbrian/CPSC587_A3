@@ -97,17 +97,6 @@ void Model2::init()
 		springs[i]->load();
 }
 
-bool isOuterCheck(Mass *m, int w, int h, int d, float scale)
-{
-	if (m->pos.x() == 0 || m->pos.x() >= (w - 1) * scale)
-		return true;
-	if (m->pos.y() == 0 || m->pos.y() >= (h - 1) * scale)
-		return true;
-	if (m->pos.z() == 0 || m->pos.z() >= (d - 1) * scale)
-		return true;
-	return false;
-}
-
 Vec3f calcNormal(Vec3f a, Vec3f b, Vec3f c)
 {
 	Vec3f ab = a - b;
@@ -125,7 +114,7 @@ void Model3::init()
     int depth = 4;
 	float scale = 0.3f;
 	float max_dist_squared = 3 * scale * scale;
-	Vec3f start = Vec3f(0, 0, 0);// Vec3f(-w, -h, -depth) * 0.5f * scale;
+    Vec3f start = Vec3f(-w, -h, -depth) * 0.5f * scale;
 	Mass *prev_mass = 0;
 
 	for (int x = 0; x < w; x++)
@@ -166,103 +155,8 @@ void Model3::init()
 		}
 	}
 
-	// create faces
-	float adj_dist_sq = scale * scale;  // distance of adjacent vertex
-	for (int i = 0; i < masses.size(); i++)
-	{
-		Mass *a = masses[i];
-		if (!isOuterCheck(a, w, h, depth, scale))
-			continue;
-
-		for (int j = i + 1; j < masses.size(); j++)
-		{
-			Mass *b = masses[j];
-
-			if (!isOuterCheck(b, w, h, depth, scale))
-				continue;
-			float dist_sq_ba = (b->pos - a->pos).lengthSquared();
-
-			if (dist_sq_ba > adj_dist_sq)
-				continue;
-
-			for (int k = j + 1; k < masses.size(); k++)
-			{
-				Mass *c = masses[k];
-				if (!isOuterCheck(c, w, h, depth, scale))
-					continue;
-
-				float dist_sq_ca = (c->pos - a->pos).lengthSquared();
-
-				if (dist_sq_ca > adj_dist_sq)
-					continue;
-
-				for (int n = k + 1; n < masses.size(); n++)
-				{
-					Mass *d = masses[n];
-					if (!isOuterCheck(d, w, h, depth, scale))
-						continue;
-					float dist_sq_db = (d->pos - b->pos).lengthSquared();
-					float dist_sq_dc = (d->pos - c->pos).lengthSquared();
-
-					if (dist_sq_db > adj_dist_sq ||
-						dist_sq_dc > adj_dist_sq)
-						continue;
-
-					Face f = Face(j, i, k);
-					faces.push_back(f);
-					f = Face(j, k, n);
-					faces.push_back(f);
-				}
-			}
-		}
-	}
-
-  //  for (int i = 0; i < springs.size(); i++)
-		//springs[i]->load();
-
-    glGenVertexArrays(1, &vaoID);
-    glBindVertexArray(vaoID);
-	glGenBuffers(1, &vertBufferID);
-	glGenBuffers(1, &normBufferID);
-
-    verts.clear();
-	normals.clear();
-
-    updateGPU();
-}
-
-void Model3::updateGPU()
-{
-    //upload to gpu
-	glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
-    glBufferData(GL_ARRAY_BUFFER,
-        sizeof(Vec3f) * verts.size(), // byte size of Vec3f, 3 of them
-        verts.data(),      // pointer (Vec3f*) to contents of verts
-        GL_STREAM_DRAW);   // Usage pattern of GPU buffer
-
-	glEnableVertexAttribArray(0); // match layout # in shader
-	glVertexAttribPointer(0,        // attribute layout # above
-		3,        // # of components (ie XYZ )
-		GL_FLOAT, // type of components
-		GL_FALSE, // need to be normalized?
-		0,        // stride
-		(void *)0 // array buffer offset
-	);
-
-	glBindBuffer(GL_ARRAY_BUFFER, normBufferID);	
-    glBufferData(GL_ARRAY_BUFFER,
-        sizeof(Vec3f) * normals.size(), // byte size of Vec3f, 3 of them
-		normals.data(),      // pointer (Vec3f*) to contents of verts
-        GL_STREAM_DRAW);   // Usage pattern of GPU buffer
-
-	glEnableVertexAttribArray(1); // match layout # in shader
-	glVertexAttribPointer(1,        // attribute layout # above
-		3,        // # of components (ie XYZ )
-		GL_FLOAT, // type of components
-		GL_FALSE, // need to be normalized?
-		0,        // stride
-		(void *)0 // array buffer offset
-	);
+    for (int i = 0; i < springs.size(); i++)
+        springs[i]->load();
 }
 
 void Model3::update(float dt)
@@ -382,7 +276,7 @@ void Model5::init()
 				continue;
 
 			Spring *s = new Spring();
-			s->k = 100;
+            s->k = 250;
 			s->damp = 0.5f;
 			s->x_rest = sqrt(dist);
 			s->mass_1 = a;
@@ -542,38 +436,3 @@ void Model5::render()
 	glBindVertexArray(0);
 }
 
-void Model3::render()
-{
-    for (int i = 0; i < springs.size(); i++)
-        springs[i]->render();
-
-    verts.clear();
-	normals.clear();
-    for (int i = 0; i < faces.size(); i++)
-    {
-        Face f = faces[i];
-		Mass *a = masses[f.v_indices[0]];
-		Mass *b = masses[f.v_indices[1]];
-		Mass *c = masses[f.v_indices[2]];
-		verts.push_back(a->pos);
-		verts.push_back(b->pos);
-		verts.push_back(c->pos);
-
-		Vec3f normal = calcNormal(a->pos, b->pos, c->pos);
-		normals.push_back(normal);
-		normals.push_back(normal);
-		normals.push_back(normal);
-	}
-
-    //reloadColorUniform(color.x(), color.y(), color.z());
-
-    // Use VAO that holds buffer bindings
-    // and attribute config of buffers
-    glBindVertexArray(vaoID);
-    updateGPU();
-
-    // Draw Quads, start at vertex 0, draw 4 of them (for a quad)
-    glDrawArrays(GL_TRIANGLES, 0, verts.size());
-
-    glBindVertexArray(0);
-}
