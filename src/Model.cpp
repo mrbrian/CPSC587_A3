@@ -97,19 +97,40 @@ void Model2::init()
 		springs[i]->load();
 }
 
+bool isOuterCheck(Mass *m, int w, int h, int d, float scale)
+{
+	if (m->pos.x() == 0 || m->pos.x() >= (w - 1) * scale)
+		return true;
+	if (m->pos.y() == 0 || m->pos.y() >= (h - 1) * scale)
+		return true;
+	if (m->pos.z() == 0 || m->pos.z() >= (d - 1) * scale)
+		return true;
+	return false;
+}
+
+Vec3f calcNormal(Vec3f a, Vec3f b, Vec3f c)
+{
+	Vec3f ab = a - b;
+	Vec3f ac = a - c;
+
+	Vec3f norm = ab.crossProduct(ac);
+	norm.normalize();
+	return norm;
+}
+
 void Model3::init()
 {
-    int w = 2;
-    int h = 2;
-    int d = 2;
+    int w = 4;
+    int h = 4;
+    int depth = 4;
 	float scale = 0.3f;
 	float max_dist_squared = 3 * scale * scale;
-    Vec3f start = Vec3f(-w, -h, -d) * 0.5f * scale;
+	Vec3f start = Vec3f(0, 0, 0);// Vec3f(-w, -h, -depth) * 0.5f * scale;
 	Mass *prev_mass = 0;
 
 	for (int x = 0; x < w; x++)
 		for (int y = 0; y < h; y++)
-			for (int z = 0; z < d; z++)
+			for (int z = 0; z < depth; z++)
 			{
 				Mass *m = new Mass();
 				m->mass = 0.25f;
@@ -119,11 +140,11 @@ void Model3::init()
 				masses.push_back(m);
 			}
 
-    for (uint i = 0; i < masses.size(); i++)
+    for (int i = 0; i < masses.size(); i++)
 	{
 		Mass *a = masses[i];
 
-        for (uint j = 0; j < masses.size(); j++)
+        for (int j = 0; j < masses.size(); j++)
 		{
 			if (i == j)
 				continue; 
@@ -145,80 +166,104 @@ void Model3::init()
 		}
 	}
 
-    // create polys
-    for (uint i = 0; i < masses.size(); i++)
-    {
-        Mass *a = masses[i];
+	// create faces
+	float adj_dist_sq = scale * scale;  // distance of adjacent vertex
+	Vec3f center = Vec3f(scale * 2, scale * 2, scale * 2);
+	for (int i = 0; i < masses.size(); i++)
+	{
+		Mass *a = masses[i];
+		if (!isOuterCheck(a, w, h, depth, scale))
+			continue;
 
-        for (uint j = i; j < masses.size(); j++)
-        {
-            if (i == j)
-                continue;
+		for (int j = i + 1; j < masses.size(); j++)
+		{
+			Mass *b = masses[j];
 
-            Mass *b = masses[i];
-            float dist_sq = (b->pos - a->pos).lengthSquared();
+			if (!isOuterCheck(b, w, h, depth, scale))
+				continue;
+			float dist_sq_ba = (b->pos - a->pos).lengthSquared();
 
-            if (dist_sq > scale * scale)
-                continue;
+			if (dist_sq_ba > adj_dist_sq)
+				continue;
 
-            for (uint k = j; k < masses.size(); k++)
-            {
-                if (i == k)
-                    continue;
-                if (j == k)
-                    continue;
+			for (int k = j + 1; k < masses.size(); k++)
+			{
+				Mass *c = masses[k];
+				if (!isOuterCheck(c, w, h, depth, scale))
+					continue;
 
-                Mass *c = masses[j];
-                float dist_sq_1 = (c->pos - b->pos).lengthSquared();
-                float dist_sq_2 = (c->pos - a->pos).lengthSquared();
+				float dist_sq_ca = (c->pos - a->pos).lengthSquared();
 
-                if (dist_sq_1 > scale * scale)
-                    continue;
+				if (dist_sq_ca > adj_dist_sq)
+					continue;
 
-                if (dist_sq_2 > scale * scale)
-                    continue;
+				for (int n = k + 1; n < masses.size(); n++)
+				{
+					Mass *d = masses[n];
+					if (!isOuterCheck(d, w, h, depth, scale))
+						continue;
+					float dist_sq_db = (d->pos - b->pos).lengthSquared();
+					float dist_sq_dc = (d->pos - c->pos).lengthSquared();
 
-                Face f = Face(i, j, k);
-                faces.push_back(f);
-            }
-        }
-    }
-    //
+					if (dist_sq_db > adj_dist_sq ||
+						dist_sq_dc > adj_dist_sq)
+						continue;
 
-    for (uint i = 0; i < springs.size(); i++)
-		springs[i]->load();
+					Face f = Face(j, i, k);
+					faces.push_back(f);
+					f = Face(j, k, n);
+					faces.push_back(f);
+				}
+			}
+		}
+	}
+
+  //  for (int i = 0; i < springs.size(); i++)
+		//springs[i]->load();
 
     glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
+	glGenBuffers(1, &vertBufferID);
+	glGenBuffers(1, &normBufferID);
 
     verts.clear();
-    verts.push_back(Vec3f(0,0,0));
-    verts.push_back(Vec3f(0,-5,0));
+	normals.clear();
 
-    glGenBuffers(1, &vertBufferID);
     updateGPU();
 }
 
 void Model3::updateGPU()
 {
     //upload to gpu
-    glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
-
+	glBindBuffer(GL_ARRAY_BUFFER, vertBufferID);
     glBufferData(GL_ARRAY_BUFFER,
-        sizeof(Vec3f) * 3, // byte size of Vec3f, 3 of them
+        sizeof(Vec3f) * verts.size(), // byte size of Vec3f, 3 of them
         verts.data(),      // pointer (Vec3f*) to contents of verts
         GL_STREAM_DRAW);   // Usage pattern of GPU buffer
 
-    glVertexAttribPointer(0,        // attribute layout # above
-        3,        // # of components (ie XYZ )
-        GL_FLOAT, // type of components
-        GL_FALSE, // need to be normalized?
-        0,        // stride
-        (void *)0 // array buffer offset
-    );
+	glEnableVertexAttribArray(0); // match layout # in shader
+	glVertexAttribPointer(0,        // attribute layout # above
+		3,        // # of components (ie XYZ )
+		GL_FLOAT, // type of components
+		GL_FALSE, // need to be normalized?
+		0,        // stride
+		(void *)0 // array buffer offset
+	);
 
-    glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, normBufferID);	
+    glBufferData(GL_ARRAY_BUFFER,
+        sizeof(Vec3f) * normals.size(), // byte size of Vec3f, 3 of them
+		normals.data(),      // pointer (Vec3f*) to contents of verts
+        GL_STREAM_DRAW);   // Usage pattern of GPU buffer
 
+	glEnableVertexAttribArray(1); // match layout # in shader
+	glVertexAttribPointer(1,        // attribute layout # above
+		3,        // # of components (ie XYZ )
+		GL_FLOAT, // type of components
+		GL_FALSE, // need to be normalized?
+		0,        // stride
+		(void *)0 // array buffer offset
+	);
 }
 
 void Model3::update(float dt)
@@ -364,18 +409,26 @@ void Model5::update(float dt)
 
 void Model3::render()
 {
-   // for (int i = 0; i < springs.size(); i++)
-   //     springs[i]->render();
+    //for (int i = 0; i < springs.size(); i++)
+        //springs[i]->render();
 
     verts.clear();
+	normals.clear();
     for (int i = 0; i < faces.size(); i++)
     {
         Face f = faces[i];
-        for (int k = 0; k < 3; k++)
-        {
-            verts.push_back(masses[f.v_indices[k]]->pos);
-        }
-    }
+		Mass *a = masses[f.v_indices[0]];
+		Mass *b = masses[f.v_indices[1]];
+		Mass *c = masses[f.v_indices[2]];
+		verts.push_back(a->pos);
+		verts.push_back(b->pos);
+		verts.push_back(c->pos);
+
+		Vec3f normal = calcNormal(a->pos, b->pos, c->pos);
+		normals.push_back(normal);
+		normals.push_back(normal);
+		normals.push_back(normal);
+	}
 
     //reloadColorUniform(color.x(), color.y(), color.z());
 
@@ -385,7 +438,7 @@ void Model3::render()
     updateGPU();
 
     // Draw Quads, start at vertex 0, draw 4 of them (for a quad)
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, verts.size());
 
     glBindVertexArray(0);
 }

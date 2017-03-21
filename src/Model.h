@@ -28,22 +28,24 @@ struct Face
 {
     int v_indices[3];
 
-    Face(int i, int j, int k)
-    {
-        v_indices[0] = i;
-        v_indices[1] = j;
-        v_indices[2] = k;
-    }
+	Face(int i, int j, int k)
+	{
+		v_indices[0] = i;
+		v_indices[1] = j;
+		v_indices[2] = k;
+	}
 };
 
 // jello cube
 class Model3 : public Model
-{    
-    GLuint vertBufferID;
+{
+	GLuint normBufferID;
+	GLuint vertBufferID;
     GLuint vaoID;;
 
     std::vector<Face> faces;
-    std::vector<Vec3f> verts;
+	std::vector<Vec3f> verts;
+	std::vector<Vec3f> normals;
     void init() override;
     void update(float dt) override;
     void updateGPU();
