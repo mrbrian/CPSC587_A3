@@ -12,7 +12,7 @@ out vec3 interpolateColor;
 void main()
 {
     mat3 normalMatrix = mat3(MV);
-    N = vert_normal;//normalize(normalMatrix * vert_normal);		
+    N = normalize(normalMatrix * vert_normal);		
 	
 	gl_Position = MVP * vec4( vert_modelSpace, 1.0 );	
 		

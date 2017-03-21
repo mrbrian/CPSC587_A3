@@ -1,6 +1,6 @@
 #version 330 core
 
-uniform vec3 L = vec3(0, -1, 0);
+vec3 L = vec3(0, 1, -0.5);
 uniform vec3 ambient = vec3(0.5, 0.5, 0.5);
 
 in vec3 N;
@@ -10,5 +10,6 @@ out vec3 color;
 
 void main()
 {
-    color =  N;//ambient * interpolateColor + max(dot(L, N), 0.0) * interpolateColor;
+	L = normalize(L);
+    color =  ambient * interpolateColor + max(dot(L, N), 0.0) * interpolateColor;
 }

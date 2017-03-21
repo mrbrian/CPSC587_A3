@@ -43,7 +43,7 @@
 
 Model *m;
 int g_play_speed = 1;
-int g_model = 1;
+int g_model = 4;
 // Drawing Program
 GLuint basicProgramID;
 
@@ -122,19 +122,6 @@ int main(int, char **);
 
 //==================== FUNCTION DEFINITIONS ====================//
 
-void renderGround()
-{
-    // ===== DRAW QUAD ====== //
-    MVP = P * V * quad_M;
-    reloadMVPUniform();
-    reloadColorUniform(1, 0, 0);
-    // Use VAO that holds buffer bindings
-    // and attribute config of buffers
-    glBindVertexArray(quad_vaoID);
-    // Draw Quads, start at vertex 0, draw 4 of them (for a quad)
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-}
-
 void displayFunc() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -142,8 +129,6 @@ void displayFunc() {
 	glUseProgram(basicProgramID);
 
     reloadMVPUniform();
-
-//    renderGround();
 
     reloadColorUniform(1, 1, 1);
     m->render();
@@ -506,8 +491,8 @@ void windowKeyFunc(GLFWwindow *window, int key, int scancode, int action,
 	  if (set)
 	  {
 		  g_model++;
-          if (g_model > 5)
-              g_model = 5;
+          if (g_model > 4)
+              g_model = 4;
 		  initModel();
 	  }
       break;

@@ -58,15 +58,21 @@ class Model4 : public Model
 	void init() override;
 };
 
+// flag + wind
 class Model5 : public Model
 {
-        void init() override;
-        void update(float dt) override;
+	GLuint normBufferID;
+	GLuint vertBufferID;
+	GLuint vaoID;;
+
+	std::vector<Face> faces;
+	std::vector<Vec3f> verts;
+	std::vector<Vec3f> normals;
+
+	float time;
+    void init() override;
+    void update(float dt) override;
+	void updateGPU();
+	void render();
 };
 
-// cloth + table
-class Model6 : public Model
-{
-        void init() override;
-        void update(float dt) override;
-};
