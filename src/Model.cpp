@@ -347,7 +347,8 @@ void Model5::init()
 
 	verts.clear();
 	normals.clear();
-
+	tmp_nrms = new Vec3f[masses.size()];
+	updateNormals();
 	updateGPU();
 }
 
@@ -361,9 +362,11 @@ void Model5::update(float dt)
 		Mass *b = masses[faces[i].v_indices[1]];
 		Mass *c = masses[faces[i].v_indices[2]];
 
-		Vec3f norm = calcNormal(a->pos, b->pos, c->pos);		
 		for (int j = 0; j < 3; j++)
-			masses[faces[i].v_indices[j]]->force += abs(wind_force.dotProduct(norm)) * wind_force; // Vec3f(5, RAND_1() * 5, RAND_1() * 5);
+		{
+			Vec3f norm = tmp_nrms[faces[i].v_indices[j]];
+			masses[faces[i].v_indices[j]]->force += abs(wind_force.dotProduct(norm)) * wind_force;
+		}
 	}
 
 	Model::update(dt);
@@ -403,26 +406,63 @@ void Model5::updateGPU()
 	);
 }
 
-void Model5::render()
+void Model5::updateNormals()
 {
-	verts.clear();
 	normals.clear();
+
+	for (int i = 0; i < masses.size(); i++)
+		tmp_nrms[i] = Vec3f(0, 0, 0);
 
 	for (int i = 0; i < faces.size(); i++)
 	{
-		Mass *a = masses[faces[i].v_indices[0]];
-		Mass *b = masses[faces[i].v_indices[1]];
-		Mass *c = masses[faces[i].v_indices[2]];
+		int idx_1 = faces[i].v_indices[0];
+		int idx_2 = faces[i].v_indices[1];
+		int idx_3 = faces[i].v_indices[2];
+		Mass *a = masses[idx_1];
+		Mass *b = masses[idx_2];
+		Mass *c = masses[idx_3];
+
+		Vec3f norm = calcNormal(a->pos, b->pos, c->pos);
+		tmp_nrms[idx_1] += norm;
+		tmp_nrms[idx_2] += norm;
+		tmp_nrms[idx_3] += norm;
+	}
+
+	for (int i = 0; i < faces.size(); i++)
+	{
+		int idx_1 = faces[i].v_indices[0];
+		int idx_2 = faces[i].v_indices[1];
+		int idx_3 = faces[i].v_indices[2];
+
+		(&tmp_nrms[idx_1])->normalize();
+		(&tmp_nrms[idx_2])->normalize();
+		(&tmp_nrms[idx_3])->normalize();
+
+		normals.push_back(tmp_nrms[idx_1]);
+		normals.push_back(tmp_nrms[idx_2]);
+		normals.push_back(tmp_nrms[idx_3]);
+	}
+}
+
+void Model5::render()
+{
+	verts.clear();	
+
+	for (int i = 0; i < faces.size(); i++)
+	{
+		int idx_1 = faces[i].v_indices[0];
+		int idx_2 = faces[i].v_indices[1];
+		int idx_3 = faces[i].v_indices[2];
+		Mass *a = masses[idx_1];
+		Mass *b = masses[idx_2];
+		Mass *c = masses[idx_3];
 
 		verts.push_back(a->pos);
 		verts.push_back(b->pos);
 		verts.push_back(c->pos);
-
-		Vec3f norm = calcNormal(a->pos, b->pos, c->pos);
-		normals.push_back(norm);
-		normals.push_back(norm);
-		normals.push_back(norm);
 	}
+	updateNormals();
+
 	//reloadColorUniform(color.x(), color.y(), color.z());
 
 	// Use VAO that holds buffer bindings

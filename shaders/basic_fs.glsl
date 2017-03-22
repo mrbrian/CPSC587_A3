@@ -11,5 +11,5 @@ out vec3 color;
 void main()
 {
 	L = normalize(L);
-    color =  ambient * interpolateColor + max(dot(L, N), 0.0) * interpolateColor;
+    color =  ambient * interpolateColor + dot(L, N) * interpolateColor;
 }

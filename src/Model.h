@@ -61,11 +61,13 @@ class Model5 : public Model
     std::vector<Face> faces;
     std::vector<Vec3f> verts;
     std::vector<Vec3f> normals;
+	Vec3f *tmp_nrms;
 
     float time;
     void init() override;
     void update(float dt) override;
     void updateGPU();
+	void updateNormals();
     void render();
 };
 
