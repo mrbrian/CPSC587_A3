@@ -1,10 +1,10 @@
-#include "../Model.h"
+#include "Model.h"
 
 void Model3::init()
 {
-    int w = 4;
-    int h = 4;
-    int depth = 4;
+    int w = 5;
+    int h = 5;
+    int depth = 5;
 
 	float scale = 0.3f;
 	float max_dist_squared = 3 * scale * scale;
@@ -55,7 +55,7 @@ void Model3::init()
 				continue;
 
 			Spring *s = new Spring();
-            s->k = 40;
+            s->k = 80;
             s->damp = 0.125f;
 			s->x_rest = sqrt(dist_sq);
 			s->mass_1 = a;

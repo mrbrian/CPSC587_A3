@@ -33,13 +33,14 @@ void Mass::load()
 
 void Mass::resolveForce(float dt)
 {
+    // semi implicit euler
 	Vec3f new_vel = vel;
-	new_vel += force / mass * dt;	// spring force
+    new_vel += force / mass * dt;	// next_vel = cur_vel + cur_acceleration * dt
 
 	vel = new_vel;
 
 	if (!fixed)
-		pos += vel * dt;
+        pos += vel * dt;            // next_pos = cur_pos + next_velocity * dt
 	force = Vec3f(0, 0, 0);
 }
 

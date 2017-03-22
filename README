@@ -19,8 +19,8 @@ To run the program, on the terminal enter the following command:
 	1  - Previous model scene
 	2  - Next model scene
 
-	+  - Increase Speed 
-	-  - Decrease Speed
+	+  - Increase time step 
+	-  - Decrease time step
 	W, A, S, D - Translate camera position
 	Left Click & Drag - Rotate camera
 	C - Reset camera orientation
@@ -30,14 +30,19 @@ To run the program, on the terminal enter the following command:
 
 Scene 1 - Mass + spring
 Scene 2 - Series of mass + springs
-Scene 3 - Jello cube hitting flat surface
-Scene 4 - Mass + Spring
-Scene 5 - Mass + Spring
+Scene 3 - Jello cube hitting a flat surface
+Scene 4 - Hanging cloth
+Scene 5 - Flag + wind 
 
-Integration by semi-implicit Euler
-Timestep is 1/60 sec
+Integration is done by semi-implicit Euler.  (Mass.cpp:36)
+Default timestep is 1/60 sec.
 
-
-
-Bonus:  Flag in wind simulation.  Normal force is applied according to the dot of 
+Bonus:  
+	Simulation of a flag in wind.  Smooth normals are calculated for each mass(vertex).  
+	The force applied to each mass is the normal.dot(wind_direction) * normal.
+	I originally multiplied the dot product by the wind direction but some of the vertices on the top
+	of the flag were drooping(from no lifting force).  
+	
+	There is some self intersection present in the simulation (no electrostatic forces were implemented).
+	
 

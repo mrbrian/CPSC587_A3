@@ -43,7 +43,7 @@
 
 Model *m;
 int g_play_speed = 1;
-int g_model = 4;
+int g_model = 0;
 // Drawing Program
 GLuint basicProgramID;
 

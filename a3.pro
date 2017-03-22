@@ -32,11 +32,11 @@ SOURCES += src/Camera.cpp \
     src/Spring.cpp \
            middleware/glad/src/glad.c \
     src/Model.cpp \
-    src/Models/Model1.cpp \
-    src/Models/Model2.cpp \
-    src/Models/Model3.cpp \
-    src/Models/Model4.cpp \
-    src/Models/Model5.cpp
+    src/Model1.cpp \
+    src/Model2.cpp \
+    src/Model3.cpp \
+    src/Model4.cpp \
+    src/Model5.cpp
 
 
 LIBS += -L/usr/lib/ -ldl-2.23

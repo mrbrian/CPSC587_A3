@@ -1,4 +1,4 @@
-#include "../Model.h"
+#include "Model.h"
 
 void Model5::init()
 {
@@ -43,7 +43,7 @@ void Model5::init()
 				continue;
 
 			Spring *s = new Spring();
-            s->k = 250;
+            s->k = 1000;
 			s->damp = 0.5f;
 			s->x_rest = sqrt(dist);
 			s->mass_1 = a;
