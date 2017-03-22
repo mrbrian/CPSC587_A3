@@ -104,20 +104,38 @@ Mat4f Mat4f::operator+(Mat4f other) const {
 }
 
 Mat4f Mat4f::operator*(const Mat4f &other) const {
-  Mat4f result;
+	Mat4f result;
 
-  float element;
-  for (int i = 0; i < DIM; ++i) {
-    for (int j = 0; j < DIM; ++j) {
-      element = 0;
-      for (int k = 0; k < DIM; ++k) {
-        element += (*this)(i, k) * other(k, j);
-      }
-      result(i, j) = element;
-    }
-  }
+	float element;
+	for (int i = 0; i < DIM; ++i) {
+		for (int j = 0; j < DIM; ++j) {
+			element = 0;
+			for (int k = 0; k < DIM; ++k) {
+				element += (*this)(i, k) * other(k, j);
+			}
+			result(i, j) = element;
+		}
+	}
 
-  return result;
+	return result;
+}
+
+Vec3f Mat4f::operator*(const Vec3f &other) const {
+	Vec3f result;
+
+	float element;
+	for (int i = 0; i < 3; ++i) {	// row
+		element = 0;
+		for (int k = 0; k < 4; ++k) {	// column
+			if (k == 3)
+				element += (*this)(i, k);
+			else
+				element += (*this)(i, k) * other[k];
+			result[i] = element;
+		}
+	}
+
+	return result;
 }
 
 Mat4f Mat4f::operator*(float scalar) const {

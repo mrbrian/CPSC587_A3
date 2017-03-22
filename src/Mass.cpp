@@ -1,6 +1,8 @@
 #include "Mass.h"
 #include "glad/glad.h"
 
+extern void reloadColorUniform(float r, float g, float b);
+
 Mass::Mass()
 {
 	fixed = false;
@@ -14,7 +16,8 @@ void Mass::render()
 	updateGPU();
 
 	// Draw Quads, start at vertex 0, draw 4 of them (for a quad)
-	glPointSize(10);
+	glPointSize(5);
+	reloadColorUniform(1, 1, 0);
 	glDrawArrays(GL_POINTS, 0, 1);
 	glBindVertexArray(0);
 }

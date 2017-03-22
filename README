@@ -16,11 +16,11 @@ To run the program, on the terminal enter the following command:
 
 === 2. PROGRAM USE: ===
 
+	1  - Previous model scene
+	2  - Next model scene
+
 	+  - Increase Speed 
 	-  - Decrease Speed
-	1  - Previous Scene
-	2  - Next Scene
-
 	W, A, S, D - Translate camera position
 	Left Click & Drag - Rotate camera
 	C - Reset camera orientation
@@ -28,11 +28,16 @@ To run the program, on the terminal enter the following command:
 	
 === 3. ALGORITHMS and DESIGN DECISIONS: ===
 
+Scene 1 - Mass + spring
+Scene 2 - Series of mass + springs
+Scene 3 - Jello cube hitting flat surface
+Scene 4 - Mass + Spring
+Scene 5 - Mass + Spring
+
 Integration by semi-implicit Euler
 Timestep is 1/60 sec
 
-Bonus:
 
 
-convert to polys
+Bonus:  Flag in wind simulation.  Normal force is applied according to the dot of 
 
