@@ -11,7 +11,16 @@ PKGCONFIG += glfw3 gl
 
 # Input
 HEADERS += src/Mass.h \
-    src/Spring.h
+    src/Spring.h \
+    include/Camera.h \
+    include/Mat4f.h \
+    include/OpenGLMatrixTools.h \
+    include/Quat4f.h \
+    include/ShaderTools.h \
+    include/Vec3f.h \
+    middleware/glad/include/glad/glad.h \
+    middleware/glad/include/KHR/khrplatform.h \
+    src/Model.h
 SOURCES += src/Camera.cpp \
            src/main.cpp \
            src/Mat4f.cpp \
@@ -22,7 +31,12 @@ SOURCES += src/Camera.cpp \
     src/Mass.cpp \
     src/Spring.cpp \
            middleware/glad/src/glad.c \
-    src/Model.cpp
+    src/Model.cpp \
+    src/Models/Model1.cpp \
+    src/Models/Model2.cpp \
+    src/Models/Model3.cpp \
+    src/Models/Model4.cpp \
+    src/Models/Model5.cpp
 
 
 LIBS += -L/usr/lib/ -ldl-2.23

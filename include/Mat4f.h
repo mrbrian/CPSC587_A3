@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include "Vec3f.h"
 
 // Stores a 4 by 4 Matrix in Row Major order.
 // When passing to glUniform4x4fv, turn on transpose.
@@ -55,6 +56,7 @@ public:
   Mat4f operator*(const Mat4f &other) const;
   Mat4f operator*(float scalar) const;
 
+  Vec3f operator*(const Vec3f &other) const;
   Mat4f &operator=(const Mat4f &copied);
   Mat4f &operator=(Mat4f &&moved);
 
