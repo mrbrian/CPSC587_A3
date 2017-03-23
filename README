@@ -39,10 +39,16 @@ Default timestep is 1/60 sec.
 
 Bonus:  
 	Simulation of a flag in wind.  Smooth normals are calculated for each mass(vertex).  
-	The force applied to each mass is the normal.dot(wind_direction) * normal.
+	
+	The force applied to each mass is:
+		F = face.normal.dot(wind_force) * face.normal.
+		
 	I originally multiplied the dot product by the wind direction but some of the vertices on the top
 	of the flag were drooping(from no lifting force).  
 	
-	There is some self intersection present in the simulation (no electrostatic forces were implemented).
+	Basic electrostatic forces have been implemented on the flag: (Model5.cpp:132)	
+	This is limited to masses within a certain distance of each other to improve speed.
+		F = unit_vector_between_masses * constant * charge1 * charge2 / dist^2 
 	
-
+	To make the wind less uniform, the force is scaled by sin(time_counter).  (Model5.cpp:153)
+	

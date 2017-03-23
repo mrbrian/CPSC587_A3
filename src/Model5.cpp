@@ -1,11 +1,60 @@
 #include "Model.h"
 
+// the size of one square of flag
+float scale = 0.125f;
+
+void Model5::createFaces()
+{
+	float adj_dist_sq = scale * scale + 0.001f;  // distance of an adjacent vertex
+	for (int i = 0; i < masses.size(); i++)
+	{
+		Mass *a = masses[i];
+
+		for (int j = i + 1; j < masses.size(); j++)
+		{
+			Mass *b = masses[j];
+
+			float dist_sq_ba = (b->pos - a->pos).lengthSquared();
+
+			if (dist_sq_ba > adj_dist_sq)
+				continue;
+
+			for (int k = j + 1; k < masses.size(); k++)
+			{
+				Mass *c = masses[k];
+
+				float dist_sq_ca = (c->pos - a->pos).lengthSquared();
+
+				if (dist_sq_ca > adj_dist_sq)
+					continue;
+
+				for (int n = k + 1; n < masses.size(); n++)
+				{
+					Mass *d = masses[n];
+
+					float dist_sq_db = (d->pos - b->pos).lengthSquared();
+					float dist_sq_dc = (d->pos - c->pos).lengthSquared();
+
+					if (dist_sq_db > adj_dist_sq ||
+						dist_sq_dc > adj_dist_sq)
+						continue;
+
+					Face f = Face(j, i, k);
+					faces.push_back(f);
+					f = Face(j, k, n);
+					faces.push_back(f);
+				}
+			}
+		}
+	}
+}
+
 void Model5::init()
 {
 	time = -1;
 	int w = 30;
 	int h = 15;
-	float scale = 0.125f;
+
 	float max_dist_squared = 2 * scale * scale;
 	Vec3f start = Vec3f(-w, h, 0) * scale / 2; 
 	Mass *mass_heap = new Mass[w * h];
@@ -54,48 +103,7 @@ void Model5::init()
 	}
 
 	// create faces
-	float adj_dist_sq = scale * scale + 0.001f;  // distance of an adjacent vertex
-	for (int i = 0; i < masses.size(); i++)
-	{
-		Mass *a = masses[i];
-
-		for (int j = i + 1; j < masses.size(); j++)
-		{
-			Mass *b = masses[j];
-
-			float dist_sq_ba = (b->pos - a->pos).lengthSquared();
-
-			if (dist_sq_ba > adj_dist_sq)
-				continue;
-
-			for (int k = j + 1; k < masses.size(); k++)
-			{
-				Mass *c = masses[k];
-
-				float dist_sq_ca = (c->pos - a->pos).lengthSquared();
-
-				if (dist_sq_ca > adj_dist_sq)
-					continue;
-
-				for (int n = k + 1; n < masses.size(); n++)
-				{
-					Mass *d = masses[n];
-
-					float dist_sq_db = (d->pos - b->pos).lengthSquared();
-					float dist_sq_dc = (d->pos - c->pos).lengthSquared();
-
-					if (dist_sq_db > adj_dist_sq ||
-						dist_sq_dc > adj_dist_sq)
-						continue;
-
-					Face f = Face(j, i, k);
-					faces.push_back(f);
-					f = Face(j, k, n);
-					faces.push_back(f);
-				}
-			}
-		}
-	}
+	createFaces();
 
 	for (int x = 0; x < w; x++)
 		for (int y = 0; y < h; y++)
@@ -119,10 +127,31 @@ void Model5::init()
 	updateGPU();
 }
 
-void Model5::update(float dt)
+void Model5::elecForce()
 {
-	Vec3f wind_force = pow(sin(time) + 1.25f, 2) * Vec3f(1,0,0);
-	time += dt;
+	for(int i = 0 ; i < masses.size(); i++)
+		for (int j = i + 1; j < masses.size(); j++)
+		{
+			Mass *a = masses[i];
+			Mass *b = masses[j];
+			Vec3f d_pos = b->pos - a->pos;
+			float dist_sq = d_pos.lengthSquared();
+			if (dist_sq < scale * scale)
+			{
+				// all masses have the same charge so use some value for charge^2
+				float charge_sq = 0.05f;
+				d_pos.normalize();
+				Vec3f f = d_pos * 0.5f * charge_sq / dist_sq;
+			
+				a->force -= f;
+				b->force += f;
+			}
+		}
+}
+void Model5::windForce()
+{
+	Vec3f wind_force = pow(sin(time) + 1.25f, 2) * Vec3f(1, 0, 0);
+
 	for (int i = 0; i < faces.size(); i++)
 	{
 		Mass *a = masses[faces[i].v_indices[0]];
@@ -136,7 +165,13 @@ void Model5::update(float dt)
 			masses[faces[i].v_indices[j]]->force += wind_force.dotProduct(norm) * norm;
 		}
 	}
+}
 
+void Model5::update(float dt)
+{
+	time += dt;
+	windForce();
+	elecForce();
 	Model::update(dt);
 }
 

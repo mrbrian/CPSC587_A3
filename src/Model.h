@@ -83,8 +83,11 @@ class Model5 : public Model
 	Vec3f *v_normals;
 
     float time;
-    void init() override;
-    void update(float dt) override;
+	void createFaces();
+	void init() override;
+	void elecForce();
+	void windForce();
+	void update(float dt) override;
     void updateGPU();
 	void updateNormals();
     void render();
